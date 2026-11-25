@@ -1,10 +1,32 @@
 import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-// One line about the office joke open: the minutes say I volunteered.
-// Writes ONLY to /output/entry.txt (the grader's path) — no relative
-// write, so the program cannot throw in a read-only sandbox.
-const line =
-  "The minutes say I volunteered to lead the migration. I spent all 90 of them on mute.";
+const OUT_DIR = "/output";
+const OUT_FILE = join(OUT_DIR, "entry.txt");
 
-mkdirSync("/output", { recursive: true });
-writeFileSync("/output/entry.txt", line, "utf8");
+const SEGMENTS = [
+  "I expensed my burrito as a client lunch,",
+  "and accounting approved it because the receipt",
+  "listed Extra Guac under attendees.",
+];
+
+const LINE = SEGMENTS.join(" ");
+
+function validateEntry(line: string): string {
+  const trimmed = line.trim();
+  if (trimmed.length < 1 || trimmed.length > 200) {
+    throw new Error(`entry length out of gate: ${trimmed.length}`);
+  }
+  if (trimmed.includes("\n")) {
+    throw new Error("entry must be a single line");
+  }
+  return trimmed;
+}
+
+function writeEntry(): void {
+  const entry = validateEntry(LINE);
+  mkdirSync(OUT_DIR, { recursive: true });
+  writeFileSync(OUT_FILE, entry, "utf8");
+}
+
+writeEntry();
